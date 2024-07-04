@@ -16,13 +16,19 @@ def monitorear_tabla_arp(ip_router, mac_esperada):
             for line in tabla_arp.splitlines():
                 # Verifica si la línea contiene la IP del router
                 if ip_router in line:
+                    # Imprime la línea para depuración
+                    print(f"Línea ARP encontrada: {line}")
                     # Obtiene la dirección MAC actual de la entrada ARP
-                    mac_actual = line.split()[1]
-                    # Compara la dirección MAC actual con la dirección MAC esperada
-                    if mac_actual.lower() != mac_esperada.lower():
-                        # Imprime una advertencia si las direcciones MAC no coinciden
-                        print(f"ADVERTENCIA: ¡Posible ARP spoofing detectado! MAC actual: {mac_actual}, MAC esperada: {mac_esperada}")
-                        spoofed = True
+                    # El formato de la línea de salida del comando "arp -a" puede variar,
+                    # por lo que es importante ajustar el índice correcto para obtener la MAC
+                    parts = line.split()
+                    if len(parts) >= 4:  # Asegura que hay suficientes partes en la línea
+                        mac_actual = parts[3]
+                        # Compara la dirección MAC actual con la dirección MAC esperada
+                        if mac_actual.lower() != mac_esperada.lower():
+                            # Imprime una advertencia si las direcciones MAC no coinciden
+                            print(f"ADVERTENCIA: ¡Posible ARP spoofing detectado! MAC actual: {mac_actual}, MAC esperada: {mac_esperada}")
+                            spoofed = True
             # Si no se detecta spoofing, imprime que la tabla ARP es correcta
             if not spoofed:
                 print("La tabla ARP es correcta.")
